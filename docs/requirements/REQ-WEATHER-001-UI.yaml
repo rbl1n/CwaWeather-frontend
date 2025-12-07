@@ -1,0 +1,93 @@
+id: REQ-WEATHER-001-UI
+
+title: "森森天氣 - 畫面佈局與互動設計"
+
+layout:
+  type: 單頁應用                    # 單頁面應用
+  structure:
+    - 載入畫面（全螢幕）
+    - 頂部狀態列
+    - 主內容區域
+      - 今日天氣焦點卡片
+      - 稍後預報橫向滑動區
+
+design_system:
+  theme: 台灣在地化
+  colors:
+    - primary: "#7DE1A9"    # 森系綠
+    - secondary: "#FFFEF2"  # 奶油白
+    - accent: "#F9F195"    # 淡黃
+    - text: "#58504A"      # 深棕
+  fonts:
+    - primary: "Zen Maru Gothic"
+    - weights: [400, 700, 900]
+  icons: emoji                    # 使用 emoji 作為天氣圖示
+
+zones:
+  載入畫面:
+    type: 全螢幕覆蓋
+    content: 雲朵動畫 + 載入文字
+    animation: 雲朵上下彈跳動畫
+
+  狀態列:
+    position: sticky-top
+    elements:
+      - 位置標籤: "📍 新北" (左側)
+      - 更新時間: "12月7日 週六" (右側)
+
+  主內容區域:
+    padding: 20px
+    max_width: 600px
+    margin: 0 auto
+
+  今日天氣卡片:
+    type: 主焦點卡片
+    elements:
+      - 時段標籤: 早晨/中午/下午/晚上 (氣泡樣式)
+      - 天氣圖示: 大型 emoji (動畫彈跳)
+      - 溫度顯示: 大字體粗體
+      - 天氣描述: 次標題
+      - 建議區域: 2x2 網格
+        - 雨傘建議: 圖示 + 文字 + 降雨機率
+        - 穿衣建議: 圖示 + 文字 + 最高溫
+
+  預報滑動區:
+    type: 橫向滑動容器
+    title: "稍後預報"
+    cards:
+      - type: 小卡片
+      - elements:
+        - 時段標籤: "明天早晨"等
+        - 天氣圖示: 中型 emoji
+        - 溫度範圍: "25° - 28°"
+        - 降雨機率: "💧30%"
+
+flows:
+  主要流程:
+    觸發: "開啟網頁"
+    流程:
+      1. 顯示載入畫面（1.5秒最低等待）
+      2. 呼叫天氣 API
+      3. 隱藏載入畫面
+      4. 渲染主內容
+      5. 更新狀態列時間
+
+  資料更新流程:
+    觸發: "頁面重新載入"
+    流程:
+      1. 顯示更新中狀態
+      2. 重新獲取資料
+      3. 更新所有顯示內容
+      4. 更新最後更新時間
+
+interactions:
+  - 橫向滑動: 支援觸控滑動預報卡片
+  - 載入動畫: 雲朵 emoji 彈跳效果
+  - 氣泡效果: 時段標籤輕微傾斜
+  - 卡片陰影: 柔和的投影效果
+
+responsive:
+  mobile_first: true
+  breakpoints:
+    - mobile: "max-width: 768px"
+    - desktop: "min-width: 769px"

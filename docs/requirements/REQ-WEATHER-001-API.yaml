@@ -1,0 +1,79 @@
+id: REQ-WEATHER-001-API
+
+title: "森森天氣 - 資料來源與處理規格"
+
+天氣資料區塊:
+  說明: "從後端 API 獲取台灣各地天氣預報資料"
+
+  主要資料來源:
+    服務: WeatherNTP
+    方法: GET /api/weather/{city}
+    參數:
+      - city: "kaohsiung" (目前固定高雄，未來可擴展)
+    回傳格式: JSON
+    資料結構:
+      success: boolean
+      data:
+        forecasts: array
+          - startTime: "2024-12-07T06:00:00Z"
+          - endTime: "2024-12-07T18:00:00Z"
+          - weather: "多雲時晴"
+          - maxTemp: "28"
+          - minTemp: "24"
+          - rain: "20"
+
+資料處理邏輯:
+  當前天氣:
+    說明: "取 forecasts[0] 作為當前時段天氣"
+    計算:
+      - 平均溫度: (maxTemp + minTemp) / 2 四捨五入
+      - 時段判斷: 根據 startTime 判斷早晨/中午/下午/晚上
+      - 天氣圖示: 根據 weather 文字匹配 emoji
+
+  未來預報:
+    說明: "取 forecasts[1:] 作為未來預報"
+    處理:
+      - 日期判斷: 與今天比較，不同日期加上「明天」前綴
+      - 時段標籤: 組合日期 + 時段
+      - 顯示格式: "minTemp° - maxTemp°"
+
+  生活建議:
+    雨傘建議:
+      邏輯: "rain > 30 ? '記得帶傘！' : '不用帶傘'"
+      圖示: "rain > 30 ? '☂️' : '🌂'"
+
+    穿衣建議:
+      邏輯: |
+        if maxTemp >= 28: "短袖出發" 👕
+        elif maxTemp <= 20: "加件外套" 🧥
+        else: "舒適穿搭" 👕
+
+資料驗證:
+  必填欄位:
+    - success: 必須為 true
+    - forecasts: 至少需有 1 筆資料
+    - 每筆 forecast 需包含: startTime, weather, maxTemp, minTemp, rain
+
+  資料型別:
+    - maxTemp/minTemp: 字串數字
+    - rain: 字串百分比
+    - startTime: ISO 8601 格式
+
+錯誤處理:
+  API 失敗:
+    - 顯示訊息: "天氣資料讀取失敗，狸克把網路線咬斷了！"
+    - 保持載入畫面顯示
+
+  資料異常:
+    - 天氣文字空白: 預設 "🌤️"
+    - 溫度為空: 顯示 "--°"
+    - 降雨機率異常: 顯示 "N/A"
+
+快取策略:
+  - 不使用快取，每次載入重新獲取
+  - 未來可考慮加入 Service Worker 離線快取
+
+待確認:
+  - "API 是否支援其他台灣城市？目前只看到 kaohsiung"
+  - "天氣文字分類是否完整？需要確認所有可能的 weather 值"
+  - "API 的更新頻率和資料準確性"
